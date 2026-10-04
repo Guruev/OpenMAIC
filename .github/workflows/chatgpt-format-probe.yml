@@ -1,0 +1,37 @@
+name: ChatGPT Formatting Probe
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Format touched ChatGPT files
+        run: |
+          npx prettier \
+            app/auth/callback/route.ts \
+            components/settings/chatgpt-plan-settings.tsx \
+            lib/ai/providers.ts \
+            lib/server/chatgpt-plan.ts \
+            lib/server/model-config/llm.ts \
+            --write
+      - name: Print formatting patch
+        run: |
+          git --no-pager diff -- \
+            app/auth/callback/route.ts \
+            components/settings/chatgpt-plan-settings.tsx \
+            lib/ai/providers.ts \
+            lib/server/chatgpt-plan.ts \
+            lib/server/model-config/llm.ts
+      - name: Typecheck
+        run: npx tsc --noEmit
