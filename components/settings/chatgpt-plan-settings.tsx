@@ -20,9 +20,10 @@ interface PlanStatus {
 
 interface ChatGPTPlanSettingsProps {
   onConnected: (models: string[]) => Promise<void>;
+  onDisconnected: () => Promise<void>;
 }
 
-export function ChatGPTPlanSettings({ onConnected }: ChatGPTPlanSettingsProps) {
+export function ChatGPTPlanSettings({ onConnected, onDisconnected }: ChatGPTPlanSettingsProps) {
   const [status, setStatus] = useState<PlanStatus | null>(null);
   const [busy, setBusy] = useState<'connect' | 'disconnect' | null>(null);
   const [message, setMessage] = useState('');
@@ -87,6 +88,7 @@ export function ChatGPTPlanSettings({ onConnected }: ChatGPTPlanSettingsProps) {
     try {
       await fetch('/api/chatgpt-plan', { method: 'DELETE' });
       synced.current = false;
+      await onDisconnected();
       await load();
       setMessage('Disconnected from ChatGPT.');
     } catch {
