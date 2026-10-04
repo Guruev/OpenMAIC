@@ -8,8 +8,6 @@ type CodexStreamPart =
 type CodexContent = CodexGenerateResult['content'][number];
 type CodexProviderMetadata = NonNullable<CodexGenerateResult['providerMetadata']>;
 
-export const CODEX_RESPONSES_BASE_URL = 'https://chatgpt.com/backend-api/codex';
-export const CODEX_RESPONSES_ENDPOINT = `${CODEX_RESPONSES_BASE_URL}/responses`;
 export const CODEX_STREAM_ERROR_MESSAGE = 'ChatGPT plan response stream could not be processed';
 type SafeCodexStatusCode = 401 | 403 | 429;
 
