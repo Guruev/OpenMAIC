@@ -230,13 +230,7 @@ export const PROVIDERS: Record<ProviderId, ProviderConfig> = {
     supportsModelDiscovery: false,
     requiresApiKey: false,
     icon: '/logos/openai.svg',
-    models: [
-      {
-        id: 'gpt-6.1-sol',
-        name: 'GPT-6.1 Sol',
-        capabilities: { streaming: true, tools: true, vision: true },
-      },
-    ],
+    models: [],
   },
 
   azure: {
