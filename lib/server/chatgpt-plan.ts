@@ -2,11 +2,10 @@ import 'server-only';
 
 import {
   createHash,
-  createPublicKey,
   randomBytes,
   randomUUID,
   timingSafeEqual,
-  verify as verifySignature,
+  webcrypto,
 } from 'node:crypto';
 import { chmod, mkdir, readFile, rename, unlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -230,12 +229,18 @@ async function verifyIdToken(
   const jwks = (await jwksResponse.json()) as { keys?: Array<Record<string, unknown>> };
   const jwk = jwks.keys?.find((key) => key.kid === header.kid);
   if (!jwk) throw new Error('OpenAI signing key was not found.');
-  const publicKey = createPublicKey({ key: jwk as JsonWebKey, format: 'jwk' });
-  const valid = verifySignature(
-    'RSA-SHA256',
-    Buffer.from(parts[0] + '.' + parts[1]),
+  const publicKey = await webcrypto.subtle.importKey(
+    'jwk',
+    jwk as JsonWebKey,
+    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+    false,
+    ['verify'],
+  );
+  const valid = await webcrypto.subtle.verify(
+    'RSASSA-PKCS1-v1_5',
     publicKey,
     Buffer.from(parts[2], 'base64url'),
+    Buffer.from(parts[0] + '.' + parts[1]),
   );
   if (!valid) throw new Error('OpenAI ID token signature is invalid.');
 
