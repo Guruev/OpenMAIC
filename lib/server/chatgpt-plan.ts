@@ -133,8 +133,8 @@ async function removeFile(path: string): Promise<void> {
 }
 
 function localDeploymentReason(): string | undefined {
-  if (process.env.OPENMAIC_ENABLE_CHATGPT_PLAN !== 'true') {
-    return 'Set OPENMAIC_ENABLE_CHATGPT_PLAN=true and restart OpenMAIC.';
+  if (process.env.OPENMAIC_ENABLE_CHATGPT_PLAN === 'false') {
+    return 'ChatGPT plan sign-in is disabled by OPENMAIC_ENABLE_CHATGPT_PLAN=false.';
   }
   const published = process.env.OPENMAIC_PUBLISH_ADDRESS?.trim();
   if (published && !['127.0.0.1', 'localhost', '::1'].includes(published)) {
