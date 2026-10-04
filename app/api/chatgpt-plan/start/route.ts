@@ -18,12 +18,11 @@ function callbackPort(request: Request): number {
   return Number.isInteger(configured) && configured > 0 ? configured : 3000;
 }
 
-export async function POST(request: Request): Promise<Response> {
+export async function GET(request: Request): Promise<Response> {
   try {
     const result = await beginChatGPTPlanSignIn(callbackPort(request));
-    return Response.json(result);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'ChatGPT sign-in is unavailable.';
-    return Response.json({ error: message }, { status: 400 });
+    return Response.redirect(result.authorizationUrl, 302);
+  } catch {
+    return new Response('ChatGPT sign-in is unavailable.', { status: 400 });
   }
 }
