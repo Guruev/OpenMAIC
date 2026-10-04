@@ -42,6 +42,7 @@ import {
   ServerConfiguredNotice,
   ServerOnlyNotice,
   saveServiceProvider,
+  removeServiceProvider,
   type ProviderFields,
   type ServicePanelProps,
   verifySavedModel,
