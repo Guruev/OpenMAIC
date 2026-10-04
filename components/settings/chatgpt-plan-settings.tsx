@@ -49,13 +49,8 @@ export function ChatGPTPlanSettings({ onConnected, onDisconnected }: ChatGPTPlan
     setMessage('');
     synced.current = false;
     try {
-      const response = await fetch('/api/chatgpt-plan/start', { method: 'POST' });
-      const data = (await response.json()) as { authorizationUrl?: string; error?: string };
-      if (!response.ok || !data.authorizationUrl) {
-        throw new Error(data.error || 'ChatGPT sign-in could not start.');
-      }
       const popup = window.open(
-        data.authorizationUrl,
+        '/api/chatgpt-plan/start',
         'openmaic-chatgpt-signin',
         'popup,width=620,height=760',
       );
