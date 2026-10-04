@@ -1,12 +1,6 @@
 import 'server-only';
 
-import {
-  createHash,
-  randomBytes,
-  randomUUID,
-  timingSafeEqual,
-  webcrypto,
-} from 'node:crypto';
+import { createHash, randomBytes, randomUUID, timingSafeEqual, webcrypto } from 'node:crypto';
 import { chmod, mkdir, readFile, rename, unlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
@@ -100,7 +94,10 @@ function safeEqual(a: string, b: string): boolean {
 
 function parseScopes(value: unknown): string[] {
   return typeof value === 'string'
-    ? value.split(/\s+/).map((scope) => scope.trim()).filter(Boolean)
+    ? value
+        .split(/\s+/)
+        .map((scope) => scope.trim())
+        .filter(Boolean)
     : [];
 }
 
@@ -400,7 +397,10 @@ async function refreshSession(force = false): Promise<Session> {
     }
     const scopes = tokens.scope ? parseScopes(tokens.scope) : latest.scopes;
     requirePlanScope(scopes);
-    let identity: VerifiedIdentity = { subject: latest.subject, ...(latest.email ? { email: latest.email } : {}) };
+    let identity: VerifiedIdentity = {
+      subject: latest.subject,
+      ...(latest.email ? { email: latest.email } : {}),
+    };
     if (tokens.id_token) {
       identity = await verifyIdToken(tokens.id_token, latest.clientId);
       if (identity.subject !== latest.subject) {
@@ -509,7 +509,10 @@ export async function listChatGPTPlanModels(): Promise<ChatGPTPlanModel[]> {
   const payload = (await response.json()) as { models?: unknown[] };
   if (!Array.isArray(payload.models)) throw new Error('OpenAI returned an invalid model list.');
   return payload.models
-    .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object' && !Array.isArray(item))
+    .filter(
+      (item): item is Record<string, unknown> =>
+        !!item && typeof item === 'object' && !Array.isArray(item),
+    )
     .filter((item) => item.visibility === 'list' && typeof item.slug === 'string')
     .map((item) => ({
       id: item.slug as string,

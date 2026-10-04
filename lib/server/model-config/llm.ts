@@ -72,7 +72,8 @@ export async function languageModelFor(
     ...(keyOptional ? { requiresApiKey: false } : {}),
     baseUrl: target.baseUrl,
     proxy: target.proxy,
-    fetchImpl: chatGPTPlanFetch ?? (userEndpoint ? clientBaseUrlLlmFetch : fetchWithRedirectValidation),
+    fetchImpl:
+      chatGPTPlanFetch ?? (userEndpoint ? clientBaseUrlLlmFetch : fetchWithRedirectValidation),
   });
   return {
     model,

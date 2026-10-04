@@ -10,8 +10,14 @@ function page(ok: boolean): Response {
     : 'OpenMAIC could not complete ChatGPT sign-in. Return to OpenMAIC and try again.';
   const html =
     '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
-    '<title>' + title + '</title></head><body style="font-family:system-ui;padding:32px;max-width:680px;margin:auto">' +
-    '<h1>' + title + '</h1><p>' + message + '</p>' +
+    '<title>' +
+    title +
+    '</title></head><body style="font-family:system-ui;padding:32px;max-width:680px;margin:auto">' +
+    '<h1>' +
+    title +
+    '</h1><p>' +
+    message +
+    '</p>' +
     (ok ? '<script>setTimeout(function(){window.close()},700)</script>' : '') +
     '</body></html>';
   return new Response(html, {

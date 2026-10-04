@@ -152,12 +152,7 @@ export function ChatGPTPlanSettings({ onConnected, onDisconnected }: ChatGPTPlan
               plan limits.
             </p>
           </div>
-          <Button
-            type="button"
-            size="sm"
-            onClick={() => void connect()}
-            disabled={busy !== null}
-          >
+          <Button type="button" size="sm" onClick={() => void connect()} disabled={busy !== null}>
             {busy === 'connect' && <Loader2 className="mr-1.5 size-3.5 animate-spin" />}
             Continue with ChatGPT
           </Button>
