@@ -33,6 +33,7 @@ import { createAzure } from '@ai-sdk/azure';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createAmazonBedrock } from '@ai-sdk/amazon-bedrock';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { wrapChatGPTPlanModel } from './chatgpt-plan-model';
 import { wrapLanguageModel, extractReasoningMiddleware } from 'ai';
 import {
   createReasoningPreservationMiddleware,
@@ -71,7 +72,12 @@ const log = createLogger('AIProviders');
 export type { ProviderId, ProviderConfig, ModelInfo, ModelConfig };
 
 /** Provider IDs whose logos are monochrome-dark and need `dark:invert` in dark mode */
-export const MONO_LOGO_PROVIDERS: ReadonlySet<string> = new Set(['openai', 'openrouter', 'ollama']);
+export const MONO_LOGO_PROVIDERS: ReadonlySet<string> = new Set([
+  'openai',
+  'chatgpt',
+  'openrouter',
+  'ollama',
+]);
 
 /**
  * Provider registry
@@ -214,6 +220,17 @@ export const PROVIDERS: Record<ProviderId, ProviderConfig> = {
         },
       },
     ],
+  },
+
+  chatgpt: {
+    id: 'chatgpt',
+    name: 'ChatGPT Plus / Pro',
+    type: 'openai',
+    defaultBaseUrl: 'https://api.openai.com/v1',
+    supportsModelDiscovery: false,
+    requiresApiKey: false,
+    icon: '/logos/openai.svg',
+    models: [],
   },
 
   azure: {
@@ -2051,6 +2068,7 @@ function createBedrockCredentialProvider(): BedrockCredentialProvider {
 }
 
 function shouldUseOpenAIResponsesApi(providerId: ProviderId, modelId: string): boolean {
+  if (providerId === 'chatgpt') return true;
   if (providerId !== 'openai') return false;
 
   return (
@@ -2465,7 +2483,7 @@ export function getModel(config: ModelConfig): ModelWithInfo {
       const usesOpenAIResponses =
         !useStreamingChatCompat && shouldUseOpenAIResponsesApi(config.providerId, config.modelId);
       const usesCompatTransport =
-        config.providerId !== 'openai' ||
+        (config.providerId !== 'openai' && config.providerId !== 'chatgpt') ||
         (usesCustomOpenAIBaseUrl(config.baseUrl) && !usesOpenAIResponses);
       const roundTripProvider = preservesReasoning(config.providerId, config.modelId);
       const deepseekAdapter =
@@ -2609,6 +2627,7 @@ export function getModel(config: ModelConfig): ModelWithInfo {
 
       const openai = createOpenAI(openaiOptions);
       model = usesOpenAIResponses ? openai.responses(config.modelId) : openai.chat(config.modelId);
+      if (config.providerId === 'chatgpt') model = wrapChatGPTPlanModel(model);
       // OpenAI-compatible providers (e.g. DeepSeek, Qwen), including a custom
       // gateway configured through the `openai` slot, stream reasoning
       // either as a separate `reasoning_content` field (normalized to an inline

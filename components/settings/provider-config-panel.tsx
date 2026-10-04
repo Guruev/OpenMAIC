@@ -36,11 +36,13 @@ import type { CatalogueModel } from '@/lib/config/provider-presets';
 import { formatContextWindow } from './utils';
 import { PROVIDER_SIGNUP_LINKS } from './provider-links';
 import { ModelEditDialog } from './model-edit-dialog';
+import { ChatGPTPlanSettings } from './chatgpt-plan-settings';
 import {
   ApiKeyField,
   ServerConfiguredNotice,
   ServerOnlyNotice,
   saveServiceProvider,
+  removeServiceProvider,
   type ProviderFields,
   type ServicePanelProps,
   verifySavedModel,
@@ -59,6 +61,7 @@ export function ProviderConfigPanel({ view, apply, entry }: ServicePanelProps) {
   const signupLinks = PROVIDER_SIGNUP_LINKS[entry.id];
   const editable = entry.state === 'workspace' || entry.state === 'available';
   const serverConfigured = entry.state === 'deployment';
+  const isChatGPTPlan = entry.registryId === 'chatgpt';
 
   const [baseUrl, setBaseUrl] = useState(provider?.baseUrl ?? '');
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
@@ -173,7 +176,18 @@ export function ProviderConfigPanel({ view, apply, entry }: ServicePanelProps) {
 
       {/* The server's providers are the operator's: their key and endpoint
           are neither shown nor editable here. */}
-      {editable && (
+      {editable && isChatGPTPlan && (
+        <ChatGPTPlanSettings
+          onConnected={async (modelIds) => {
+            await save({ models: modelIds.length ? modelIds : null });
+          }}
+          onDisconnected={async () => {
+            await removeServiceProvider(view, apply, entry.id, t);
+          }}
+        />
+      )}
+
+      {editable && !isChatGPTPlan && (
         <>
           {/* 推广位（如 Kimi）：获取 API key 的国内/海外双链接。 */}
           {signupLinks && (
@@ -447,7 +461,7 @@ export function ProviderConfigPanel({ view, apply, entry }: ServicePanelProps) {
                 </div>
 
                 {/* Edit/Delete Buttons — only for the workspace's own services */}
-                {editable && (
+                {editable && !isChatGPTPlan && (
                   <div className="flex items-center gap-1">
                     <Button
                       variant="outline"

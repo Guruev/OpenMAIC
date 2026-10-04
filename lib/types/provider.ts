@@ -7,6 +7,7 @@
  */
 export type BuiltInProviderId =
   | 'openai'
+  | 'chatgpt'
   | 'azure'
   | 'atlascloud'
   | 'anthropic'

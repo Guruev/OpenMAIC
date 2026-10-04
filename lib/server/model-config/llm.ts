@@ -61,6 +61,10 @@ export async function languageModelFor(
   // Every other preset keeps the registry's rule, so OpenAI itself still
   // needs a key.
   const keyOptional = getProviderPreset(target.presetId)?.apiKeyOptional === true;
+  const chatGPTPlanFetch =
+    registryId === 'chatgpt'
+      ? (await import('@/lib/server/chatgpt-plan')).chatGPTPlanFetch
+      : undefined;
   const { model, modelInfo } = getModel({
     providerId: registryId,
     modelId,
@@ -68,7 +72,8 @@ export async function languageModelFor(
     ...(keyOptional ? { requiresApiKey: false } : {}),
     baseUrl: target.baseUrl,
     proxy: target.proxy,
-    fetchImpl: userEndpoint ? clientBaseUrlLlmFetch : fetchWithRedirectValidation,
+    fetchImpl:
+      chatGPTPlanFetch ?? (userEndpoint ? clientBaseUrlLlmFetch : fetchWithRedirectValidation),
   });
   return {
     model,
